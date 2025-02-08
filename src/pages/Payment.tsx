@@ -7,7 +7,7 @@ import { Button } from "../components/atoms/Button";
 
 const Payment: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { services, banners, loading, error } = useSelector((state: RootState) => state.home);
+  const { services, loading, error } = useSelector((state: RootState) => state.home);
   const { success, loading: transactionLoading } = useSelector((state: RootState) => state.transaction);
 
   const [selectedService, setSelectedService] = useState<number | null>(null);

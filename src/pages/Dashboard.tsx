@@ -12,10 +12,10 @@ import TransactionPages from "../components/pages/TransactionPages";
 import LoadingBar from "../components/atoms/LoadingBar";
 
 const Dashboard = () => {
-  const { profile, error, refetch } = useFetchProfile();
+  const { profile } = useFetchProfile();
   const activeMenu = useSelector((state: any) => state.menu);
   const loading = useSelector((state: any) => state.transaction.loading || state.home.loading);
-  
+
   const defaultProfile = {
     email: "",
     firstName: "",

@@ -4,7 +4,7 @@ const menuSlice = createSlice({
   name: "menu",
   initialState: "Home",
   reducers: {
-    setActiveMenu: (state, action) => action.payload,
+    setActiveMenu: (_, action) => action.payload,
   },
 });
 
