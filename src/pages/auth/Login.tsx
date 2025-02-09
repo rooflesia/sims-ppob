@@ -31,7 +31,7 @@ const Login = () => {
         position: "top-right"
       });
       navigate("/");
-    } catch (error) {
+    } catch {
       toast.error("Login gagal. Periksa kembali email dan password.");
     } finally {
       setLoading(false);

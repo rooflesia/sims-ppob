@@ -31,7 +31,7 @@ const Register = () => {
       
       if (posts) toast.success("Registrasi berhasil!");
       navigate("/login");
-    } catch (error) {
+    } catch {
       toast.error("Registrasi gagal.");
     }
   };
