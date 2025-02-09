@@ -1,15 +1,13 @@
 import axios from "axios";
 
-// Instance Axios
 const api = axios.create({
-  baseURL: "https://api-doc-tht.nutech-integrasi.com",
+  baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Interceptor untuk menambahkan token ke setiap request
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -23,7 +21,6 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor untuk menangani response error
 api.interceptors.response.use(
   (response) => {
     return response.data;
@@ -48,7 +45,6 @@ api.interceptors.response.use(
   }
 );
 
-// Helper Methods
 export const get = (url: string, params?: any) => api.get(url, { params });
 export const post = (url: string, data?: any) => api.post(url, data);
 export const put = (url: string, data?: any) => api.put(url, data);
