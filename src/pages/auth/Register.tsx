@@ -23,8 +23,8 @@ const Register = () => {
     try {
       const temp = {
         "email": data.email,
-        "firstName": data.firstName,
-        "lastName": data.lastName,
+        "first_name": data.firstName,
+        "last_name": data.lastName,
         "password": data.password,
     }
       const posts = await post("/registration", temp);
@@ -39,11 +39,14 @@ const Register = () => {
   return (
     <div className="flex h-screen">
       <div className="flex flex-col justify-center items-center lg:w-1/2 sm:w-full bg-white p-10 shadow-lg">
-        <h1 className="text-3xl font-bold text-red-600 mb-4">SIMS PPOB</h1>
-        <h2 className="text-xl mb-6">Lengkapi data untuk membuat akun</h2>
+        <div className="flex flex-row">
+          <img src="/Logo.png" alt="SIMS PPOB" className="w-8 h-8 mr-2" />
+          <h1 className="text-2xl font-bold text-black mb-4">SIMS PPOB</h1>
+        </div>
+        <h2 className="text-xl font-semibold mb-6">Lengkapi data untuk membuat akun</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-3/4">
-          <div className="mb-4">
+          <div className={errors.email ? "mb-8" : "mb-4"}>
             <Input
               {...register("email")}
               type="email"
@@ -52,7 +55,7 @@ const Register = () => {
               error={errors.email}
             />
           </div>
-          <div className="mb-4">
+          <div className={errors.firstName ? "mb-8" : "mb-4"}>
             <Input
               {...register("firstName")}
               type="text"
@@ -61,7 +64,7 @@ const Register = () => {
               error={errors.firstName}
             />
           </div>
-          <div className="mb-4">
+          <div className={errors.lastName ? "mb-8" : "mb-4"}>
             <Input
               {...register("lastName")}
               type="text"
@@ -71,7 +74,7 @@ const Register = () => {
               error={errors.lastName}
             />
           </div>
-          <div className="mb-4">
+          <div className={errors.password ? "mb-8" : "mb-4"}>
             <Input
               {...register("password")}
               type="password"
@@ -80,7 +83,7 @@ const Register = () => {
               error={errors.password}
             />
           </div>
-          <div className="mb-6">
+          <div className={errors.confirmPassword ? "mb-10" : "mb-6"}>
             <Input
               {...register("confirmPassword")}
               type="password"

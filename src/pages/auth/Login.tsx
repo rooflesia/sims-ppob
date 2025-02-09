@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { post } from "../../config/api";
 import Input from "../../components/atoms/Input";
@@ -27,7 +27,9 @@ const Login = () => {
     try {
       const response = await post("/login", data);
       localStorage.setItem("token", response.data.token);
-      toast.success("Login berhasil!");
+      toast.success("Login berhasil!", {
+        position: "top-right"
+      });
       navigate("/");
     } catch (error) {
       toast.error("Login gagal. Periksa kembali email dan password.");
@@ -41,11 +43,15 @@ const Login = () => {
       <LoadingBar loading={loading} />
       <div className="flex h-screen">
         <div className="flex flex-col justify-center items-center lg:w-1/2 sm:w-full bg-white p-10 shadow-lg">
-          <h1 className="text-3xl font-bold text-red-600 mb-4">SIMS PPOB</h1>
-          <h2 className="text-xl mb-6">Lengkapi data untuk membuat akun</h2>
+          <div className="flex flex-row">
+            <img src="/Logo.png" alt="SIMS PPOB" className="w-8 h-8 mr-2" />
+            <h1 className="text-2xl font-bold text-black mb-4">SIMS PPOB</h1>
+          </div>
+          
+          <h2 className="text-xl font-semibold mb-6">Masuk atau buat akun untuk memulai</h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="w-3/4">
-            <div className="mb-4">
+            <div className={errors.email ? "mb-8" : "mb-4"}>
               <Input
                 {...register("email")}
                 type="email"
@@ -54,7 +60,7 @@ const Login = () => {
                 error={errors.email}
               />
             </div>
-            <div className="mb-4">
+            <div className={errors.password ? "mb-8" : "mb-4"}>
               <Input
                 {...register("password")}
                 type="password"
@@ -80,6 +86,7 @@ const Login = () => {
           />
         </div>
       </div>
+      <ToastContainer />
     </>
     
   );

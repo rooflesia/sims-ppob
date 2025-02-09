@@ -1,6 +1,4 @@
-import { useSelector } from "react-redux";
-
-import useFetchProfile from "../hooks/useFetchProfile";
+import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "../components/organisms/Navbar";
 import BalanceCard from "../components/molecules/BalanceCard";
@@ -10,23 +8,20 @@ import HomePages from "../components/pages/HomePages";
 import TopUpPages from "../components/pages/TopupPages";
 import TransactionPages from "../components/pages/TransactionPages";
 import LoadingBar from "../components/atoms/LoadingBar";
+import { useEffect } from "react";
+import { getProfil } from "../redux/slices/profileSlice";
+import { AppDispatch, RootState } from "../redux/store";
 
 const Dashboard = () => {
-  const { profile } = useFetchProfile();
+  const dispatch = useDispatch<AppDispatch>();
+  const { profile } = useSelector((state: RootState) => state.profile);
   const activeMenu = useSelector((state: any) => state.menu);
-  const loading = useSelector((state: any) => state.transaction.loading || state.home.loading);
+  const loading = useSelector((state: any) => state.transaction.loading || state.home.loading || state.profile.loading);
 
-  const defaultProfile = {
-    email: "",
-    firstName: "",
-    lastName: "",
-    avatar: "/profile_photo.png",
-  };
+  useEffect(() => {
+    dispatch(getProfil());
+  }, [dispatch]);
 
-  const handleProfileUpdate = (updatedUser: any) => {
-    console.log("User updated:", updatedUser);
-  };
-  
   return (
     <div className="p-6">
       <LoadingBar loading={loading} />
@@ -35,13 +30,13 @@ const Dashboard = () => {
         <div className="flex justify-between p-6 w-full">
           <div className="flex flex-col items-start space-x-4">
             <img
-              src={profile?.avatar || "/profile_photo.png"}
+              src={profile !== null ? profile?.profile_image.split(/\/(?=[^\/]+$)/)[1] !== "null" ? profile?.profile_image : "/profile_photo.png" : "/profile_photo.png"}
               alt="User Avatar"
               className="w-12 h-12 rounded-full m-4"
             />
             <div>
               <p className="text-gray-600">Selamat datang,</p>
-              <h2 className="text-xl font-bold">{profile?.firstName} {profile?.lastName}</h2>
+              <h2 className="text-xl font-bold">{profile?.first_name} {profile?.last_name}</h2>
             </div>
           </div>
           <BalanceCard />
@@ -56,7 +51,7 @@ const Dashboard = () => {
       ) : (activeMenu === "Transaction") ? (
         <TransactionPages />
       ) : (<div>
-        <AkunPages user={profile || defaultProfile} onProfileUpdate={handleProfileUpdate} />
+        <AkunPages />
       </div>)}
       
     </div>

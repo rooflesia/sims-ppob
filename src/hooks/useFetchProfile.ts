@@ -3,9 +3,9 @@ import api from "../config/api";
 
 interface Profile {
   email: string;
-  firstName: string;
-  lastName: string;
-  avatar: string;
+  first_name: string;
+  last_name: string;
+  profile_image: string;
 }
 
 interface UseFetchProfile {

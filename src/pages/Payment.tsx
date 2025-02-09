@@ -4,6 +4,7 @@ import { AppDispatch, RootState } from "../redux/store";
 import { getServices } from "../redux/slices/serviceSlice";
 import { makeTransaction } from "../redux/slices/transactionSlice";
 import { Button } from "../components/atoms/Button";
+import { toast } from "react-toastify";
 
 const Payment: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,7 +19,9 @@ const Payment: React.FC = () => {
 
   const handlePayment = () => {
     if (!selectedService) {
-      alert("Silakan pilih layanan terlebih dahulu.");
+      toast.error("Silakan pilih layanan terlebih dahulu.", {
+        position: "top-right"
+      });
       return;
     }
     dispatch(makeTransaction(selectedService));
