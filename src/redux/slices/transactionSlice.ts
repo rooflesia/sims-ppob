@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { processPayment } from "../../services/paymentService";
+import { toast } from "react-toastify";
 
 interface TransactionState {
   success: boolean;
@@ -20,8 +21,14 @@ export const makeTransaction = createAsyncThunk(
   async (serviceId: number, { rejectWithValue }) => {
     try {
       const response = await processPayment(serviceId);
+      toast.success("Pembayaran berhasil!", {
+        position: "top-right"
+      });
       return response;
     } catch (error: any) {
+      toast.error("Pembayaran Gagal!", {
+        position: "top-right"
+      });
       return rejectWithValue(error.response?.data?.message || "Gagal melakukan transaksi");
     }
   }

@@ -1,6 +1,5 @@
 import api from "../config/api";
 
-// Fetch saldo dari endpoint /balance
 export const fetchBalance = async () => {
   try {
     const response = await api.get("/balance");

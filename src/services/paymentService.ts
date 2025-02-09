@@ -12,7 +12,7 @@ export const fetchServices = async () => {
 
 export const processPayment = async (serviceId: number) => {
   try {
-    const response = await api.post("/transaction", { service_id: serviceId });
+    const response = await api.post("/transaction", { service_code: serviceId });
     return response.data;
   } catch (error) {
     console.error("Failed to process payment:", error);

@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { performTopUp, performTransaction } from "../../services/topupService";
+import { toast } from "react-toastify";
 
 interface TopUpState {
   balance: number;
@@ -18,8 +19,14 @@ export const topUpBalance = createAsyncThunk(
   async (amount: number, { rejectWithValue }) => {
     try {
       const response = await performTopUp(amount);
+      toast.success("Top-up berhasil!", {
+        position: "top-right"
+      });
       return response.balance;
     } catch (error: any) {
+      toast.error("Top-up gagal!", {
+        position: "top-right"
+      });
       return rejectWithValue(error.response?.data?.message || "Top-Up gagal");
     }
   }

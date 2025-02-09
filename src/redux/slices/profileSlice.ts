@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { updateProfileData, uploadProfileImage } from "../../services/profileService";
+import { getProfile, updateProfileData, uploadProfileImage } from "../../services/profileService";
 
 interface ProfileState {
   profile: {
-    firstName: string;
-    lastName: string;
-    avatar: string;
+    first_name: string;
+    last_name: string;
+    profile_image: string;
     email: string;
   };
   loading: boolean;
@@ -14,14 +14,23 @@ interface ProfileState {
 
 const initialState: ProfileState = {
   profile: {
-    firstName: "",
-    lastName: "",
-    avatar: "",
+    first_name: "",
+    last_name: "",
+    profile_image: "",
     email: "",
   },
   loading: false,
   error: null,
 };
+
+export const getProfil = createAsyncThunk("profile/getProfile", async (_, { rejectWithValue }) => {
+  try {
+    const response = await getProfile();
+    return response;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || "Gagal memuat profile");
+  }
+});
 
 export const editProfile = createAsyncThunk(
   "profile/update",
@@ -53,6 +62,18 @@ const profileSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(getProfil.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProfil.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = action.payload;
+      })
+      .addCase(getProfil.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(editProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -72,7 +93,7 @@ const profileSlice = createSlice({
       })
       .addCase(uploadAvatar.fulfilled, (state, action) => {
         state.loading = false;
-        state.profile.avatar = action.payload;
+        state.profile.profile_image = action.payload;
         state.error = null;
       })
       .addCase(uploadAvatar.rejected, (state, action) => {

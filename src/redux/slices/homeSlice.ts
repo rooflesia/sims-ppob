@@ -1,9 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchServices, fetchBanners } from "../../services/homeService";
+import { fetchBalance } from "../../services/balanceService";
 
 interface HomeState {
   services: any[];
   banners: any[];
+  balance: any[];
   loading: boolean;
   error: string | null;
 }
@@ -11,11 +13,11 @@ interface HomeState {
 const initialState: HomeState = {
   services: [],
   banners: [],
+  balance: [],
   loading: false,
   error: null,
 };
 
-// Fetch services
 export const getServices = createAsyncThunk("home/getServices", async (_, { rejectWithValue }) => {
   try {
     const response = await fetchServices();
@@ -25,13 +27,21 @@ export const getServices = createAsyncThunk("home/getServices", async (_, { reje
   }
 });
 
-// Fetch banners
 export const getBanners = createAsyncThunk("home/getBanners", async (_, { rejectWithValue }) => {
   try {
     const response = await fetchBanners();
     return response;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || "Gagal memuat banner");
+  }
+});
+
+export const getBalance = createAsyncThunk("home/getBalance", async (_, { rejectWithValue }) => {
+  try {
+    const response = await fetchBalance();
+    return response.balance;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || "Gagal memuat balance");
   }
 });
 
@@ -62,6 +72,18 @@ const homeSlice = createSlice({
         state.banners = action.payload;
       })
       .addCase(getBanners.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getBalance.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getBalance.fulfilled, (state, action) => {
+        state.loading = false;
+        state.balance = action.payload;
+      })
+      .addCase(getBalance.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
