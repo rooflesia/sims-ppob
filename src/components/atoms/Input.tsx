@@ -33,7 +33,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             `flex h-10 rounded-md border bg-background p-2 w-full
               ${error ? "border-red-500" : "border-gray-300"} 
               ${iconLeft ? "pl-10" : iconRight || type === "password" ? "pr-10" : ""}
-              text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`,
+              text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed`,
             className,
           )}
           style={{ transition: "all 0.15s ease" }}
@@ -54,7 +54,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </div>
           )
         )}
-        {errorMessage && typeof errorMessage === "string" && <p className="text-red-500 text-sm">{errorMessage}</p>}
+        {errorMessage && typeof errorMessage === "string" && <div className="absolute mt-1 text-red-500 text-sm">{errorMessage}</div>}
       </div>
       
     );

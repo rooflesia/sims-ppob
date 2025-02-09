@@ -4,6 +4,9 @@ import { Button } from "../atoms/Button";
 import { AppDispatch, RootState } from "../../redux/store";
 import { topUpBalance } from "../../redux/slices/topupSlice";
 import Input from "../atoms/Input";
+import { CreditCardIcon } from "@heroicons/react/24/solid";
+import { getBalance } from "../../redux/slices/homeSlice";
+import { toast } from "react-toastify";
 
 const TopUpPages: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,12 +26,15 @@ const TopUpPages: React.FC = () => {
     setAmount(value);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!amount || !isValidAmount(amount)) {
-      alert("Masukkan nominal yang valid (Rp.10.000 - Rp.1.000.000)");
+      toast.error("Masukkan nominal yang valid (Rp.10.000 - Rp.1.000.000)", {
+        position: "top-right"
+      });
       return;
     }
-    dispatch(topUpBalance(Number(amount)));
+    await dispatch(topUpBalance(Number(amount)));
+    await dispatch(getBalance());
     setAmount("");
   };
 
@@ -43,6 +49,7 @@ const TopUpPages: React.FC = () => {
             type="number"
             value={amount}
             onChange={handleInputChange}
+            iconLeft={<CreditCardIcon className="w-4 h-4" />}
             placeholder="Masukkan nominal Top-Up"
           />
           <div className="mt-6">

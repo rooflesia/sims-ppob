@@ -1,30 +1,30 @@
-import React, { useState } from "react";
-import { fetchBalance } from "../../services/balanceService";
+import React, { useEffect, useState } from "react";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { formatCurrency } from "../../utils/formatCurrency";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store";
+import { getBalance } from "../../redux/slices/homeSlice";
 
 const BalanceCard: React.FC = () => {
-  const [balance, setBalance] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { balance, loading } = useSelector((state: RootState) => state.home);
   const [showBalance, setShowBalance] = useState(false);
 
   const handleToggleBalance = async () => {
     if (showBalance) {
       setShowBalance(false);
-      setBalance(null);
     } else {
-      try {
-        setLoading(true);
-        const response = await fetchBalance();
-        setBalance(response.balance);
-        setShowBalance(true);
-      } catch (error) {
-        alert("Gagal mengambil saldo. Silakan coba lagi.");
-      } finally {
-        setLoading(false);
+      if (balance === null) {
+        await dispatch(getBalance())
       }
+      setShowBalance(true);
     }
   };
+
+  useEffect(() => {
+    dispatch(getBalance())
+  }, [dispatch])
+
 
   return (
     <div className="p-6 bg-red-500 text-white rounded-lg shadow-md w-1/2">

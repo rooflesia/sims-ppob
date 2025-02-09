@@ -1,59 +1,66 @@
 import React, { useEffect, useState } from "react";
-import api from "../../config/api";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 import { Button } from "../atoms/Button";
 import Input from "../atoms/Input";
 import { AtSymbolIcon, UserIcon } from "@heroicons/react/24/solid";
-import { updateProfileData, uploadProfileImage } from "../../services/profileService";
+import { editProfile, uploadAvatar } from "../../redux/slices/profileSlice";
+import { RootState, AppDispatch } from "../../redux/store";
+import { setActiveMenu } from "../../redux/slices/menuSlice";
 
-interface ProfileProps {
-  user: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    avatar: string;
-  };
-  onProfileUpdate: (updatedUser: { email: string; firstName: string; lastName: string; avatar: string }) => void;
-}
+const AkunPages: React.FC = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const { profile, loading } = useSelector((state: RootState) => state.profile);
 
-const AkunPages: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
-  const [profileImage, setProfileImage] = useState(user?.avatar ?? "/profile_photo.png");
-  const [loading, setLoading] = useState(false);
+  const [disabled, setDisabled] = useState(true);
   const [formData, setFormData] = useState({
-    email: user?.email,
-    firstName: user?.firstName,
-    lastName: user?.lastName,
+    email: profile.email,
+    first_name: profile.first_name,
+    last_name: profile.last_name,
+  });
+  const [originalData, setOriginalData] = useState({
+    email: profile.email,
+    first_name: profile.first_name,
+    last_name: profile.last_name,
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get("/profile");
-        const { email, firstName, lastName, avatar } = response.data;
-        setFormData({ email, firstName, lastName });
-        setProfileImage(avatar);
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setFormData({
+      email: profile.email,
+      first_name: profile.first_name,
+      last_name: profile.last_name,
+    });
+    setOriginalData({
+      email: profile.email,
+      first_name: profile.first_name,
+      last_name: profile.last_name,
+    });
+  }, [profile]);
 
-    fetchProfile();
-  }, []);
+  const handleLogout = () => {
+    toast.success("Logout berhasil!", { position: "top-right" });
+    localStorage.removeItem("token");
+    setActiveMenu("Home")
+    navigate("/login");
+  };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    const maxFileSize = 100 * 1024;
     if (file) {
+      if (file.size > maxFileSize) {
+        toast.error("Ukuran gambar maksimal 100KB!", { position: "top-right" });
+        return;
+      }
+
       try {
-        setLoading(true);
-        const response = await uploadProfileImage(file);
-        setProfileImage(response.avatar);
-        alert("Foto profil berhasil diperbarui!");
-      } catch (error) {
-        alert("Gagal memperbarui foto profil. Silakan coba lagi.");
-      } finally {
-        setLoading(false);
+        await dispatch(uploadAvatar(file));
+        toast.success("Foto profil berhasil diperbarui!", { position: "top-right" });
+      } catch {
+        toast.error("Gagal memperbarui foto profil. Silakan coba lagi.");
       }
     }
   };
@@ -65,34 +72,28 @@ const AkunPages: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
 
   const handleEditProfile = async () => {
     try {
-      setLoading(true);
-      const updatedProfile = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-      };
-
-      const response = await updateProfileData(updatedProfile);
-      onProfileUpdate({
-        ...formData,
-        firstName: response.first_name,
-        lastName: response.last_name,
-        avatar: profileImage,
-      });
-
-      alert("Profil berhasil diperbarui!");
-    } catch (error) {
-      alert("Gagal memperbarui profil. Silakan coba lagi.");
-    } finally {
-      setLoading(false);
+      await dispatch(editProfile({ first_name: formData.first_name, last_name: formData.last_name }));
+      toast.success("Profil berhasil diperbarui!", { position: "top-right" });
+      setOriginalData(formData);
+      setDisabled(true);
+    } catch {
+      toast.error("Gagal memperbarui profil. Silakan coba lagi.");
     }
   };
+
+  const handleCancelEdit = () => {
+    setFormData(originalData);
+    setDisabled(true);
+  };
+
+  console.log(profile !== null ? profile?.profile_image.split(/\/(?=[^\/]+$)/)[1] !== "null" ? profile?.profile_image : "/profile_photo.png" : "/profile_photo.png")
 
   return (
     <div className="p-6">
       <div className="flex flex-col items-center mb-6">
         <div className="relative">
           <img
-            src={profileImage}
+            src={profile !== null ? profile?.profile_image.split(/\/(?=[^\/]+$)/)[1] !== "null" ? profile?.profile_image : "/profile_photo.png" : "/profile_photo.png"}
             alt="Avatar"
             className="w-24 h-24 rounded-full border shadow-md"
           />
@@ -123,10 +124,9 @@ const AkunPages: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
             className="hidden"
           />
         </div>
-        <h2 className="text-xl font-bold mt-4">{`${formData.firstName} ${formData.lastName}`}</h2>
+        <h2 className="text-xl font-bold mt-4">{`${originalData.first_name} ${originalData.last_name}`}</h2>
       </div>
     
-      {/* Form */}
       <div className="space-y-4">
         <div>
           <label className="block text-gray-700 text-sm mb-2">Email</label>
@@ -135,6 +135,7 @@ const AkunPages: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
             name="email"
             value={formData.email}
             onChange={handleInputChange}
+            disabled
             iconLeft={<AtSymbolIcon className="w-4 h-4" />}
           />
         </div>
@@ -142,28 +143,38 @@ const AkunPages: React.FC<ProfileProps> = ({ user, onProfileUpdate }) => {
           <label className="block text-gray-700 text-sm mb-2">Nama Depan</label>
           <Input
             type="text"
-            name="firstName"
-            value={formData.firstName}
+            name="first_name"
+            value={formData.first_name}
             onChange={handleInputChange}
+            disabled={disabled}
             iconLeft={<UserIcon className="w-4 h-4" />}
           />
         </div>
-        <div> 
+        <div>
           <label className="block text-gray-700 text-sm mb-2">Nama Belakang</label>
           <Input
             type="text"
-            name="lastName"
-            value={formData.lastName}
+            name="last_name"
+            value={formData.last_name}
             onChange={handleInputChange}
+            disabled={disabled}
             iconLeft={<UserIcon className="w-4 h-4" />}
           />
         </div>
       </div>
 
-      {/* Buttons */}
       <div className="mt-6 space-y-4">
-        <Button variant="outline" text={loading ? "Memproses..." : "Edit Profile"} onClick={handleEditProfile}/>
-        <Button text="Logout" />
+        {disabled ? (
+          <>
+            <Button variant="outline" text={"Edit Profile"} onClick={() => setDisabled(false)} />
+            <Button text="Logout" onClick={handleLogout} />
+          </>
+        ) : (
+          <>
+            <Button text={loading ? "Memproses..." : "Simpan"} onClick={handleEditProfile} />
+            <Button variant="outline" text="Cancel" onClick={handleCancelEdit} />
+          </>
+        )}
       </div>
     </div>
   );
